@@ -79,7 +79,10 @@ class ObjectsController extends AbstractRestfulController
 	public function getList()
 	{
 		if($this->checkVerbs() && $this->isAuthorized()) {
-		    $people = $this->getObjectTable()->getObjects()->toArray();
+		    $people = $this->getObjectTable()->getObjects();
+		    if(!people){
+			    $this->response->setStatusCode(404);
+		    }
 			$viewModel = new JsonModel($people);
 			$viewModel->setTerminal(true);
 			return $viewModel;
@@ -95,6 +98,9 @@ class ObjectsController extends AbstractRestfulController
 		    $person = new Object();
 			$person->exchangeArray($data);
 			$people = $this->getObjectTable()->saveObject($person);
+			if ($people){
+			    $this->response->setStatusCode(201);
+			}
 			$viewModel = new JsonModel($people->getDataSource());
 			$viewModel->setTerminal(true);
 			return $viewModel;

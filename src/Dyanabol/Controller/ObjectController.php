@@ -12,7 +12,7 @@ namespace Dyanabol\Controller;
 use Zend\Mvc\Controller\AbstractRestfulController;
 use Zend\View\Model\JsonModel;
 use Dyanabol\Model\Object;
-
+use Exception;
 
 class ObjectController extends AbstractRestfulController
 {
@@ -43,11 +43,6 @@ class ObjectController extends AbstractRestfulController
 		//stop execution
 	    $this->response->setStatusCode(405);
 	    throw new \Exception('Not Allowed');
-	}
-
-	public function error(){
-		$this->response->setStatusCode(500);
-	    throw new \Exception('generic Error');
 	}
 		
 	public function checkVerbs($id = false)
@@ -85,7 +80,11 @@ class ObjectController extends AbstractRestfulController
 
 		if($this->checkVerbs() && $this->isAuthorized()) {
 			$this->params()->fromRoute('entity', 0);
-		    $people = $this->getObjectTable()->getObjectCollection($entity)->toArray();
+		    $people = $this->getObjectTable()->getObjectCollection($entity);
+			if(!$people){
+			    $this->response->setStatusCode(404);
+			    throw new Exception('Resource unavailable');
+			}
 			$viewModel = new JsonModel($people);
 			$viewModel->setTerminal(true);
 			return $viewModel;
@@ -98,13 +97,10 @@ class ObjectController extends AbstractRestfulController
     {
 		// check to see if action is allowed
 		if($this->checkVerbs() && $this->isAuthorized()) {
-			try {
-				$person = $this->getObjectTable()->getObject($id);
-			} catch (\Exception $ex) {
-				echo 'error';
-			}
-			if (count($person) == 0){
-				$this->error();
+			$person = $this->getObjectTable()->getObject($id);
+			if (!$person){
+			    $this->response->setStatusCode(404);
+			    throw new Exception('Resource unavailable');
 			}
 			$viewModel = new JsonModel($person);
 			$viewModel->setTerminal(true);
@@ -122,7 +118,11 @@ class ObjectController extends AbstractRestfulController
 		    $person = new Object();
 			$person->exchangeArray($data);
 			$people = $this->getObjectTable()->saveObject($person);
-			$viewModel = new JsonModel($people->getDataSource());
+			if(!people){
+				$this->response->setStatusCode(304);
+			    throw new Exception('Could not update');
+			}
+			$viewModel = new JsonModel($people);
 			$viewModel->setTerminal(true);
 			return $viewModel;
 		} else {
@@ -134,7 +134,12 @@ class ObjectController extends AbstractRestfulController
 	{
 		if($this->checkVerbs() && $this->isAuthorized()) {
 			$result = $this->getObjectTable()->deleteObject($id);
-			$viewModel = new JsonModel($result->getDataSource());
+			if(!$result){
+				$this->response->setStatusCode(500);
+			    throw new Exception('Could not delete');
+			}
+			$this->response->setStatusCode(204);
+			$viewModel = new JsonModel($result);
 			$viewModel->setTerminal(true);
 			return $viewModel;
 		} else {

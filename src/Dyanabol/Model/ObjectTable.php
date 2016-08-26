@@ -14,7 +14,7 @@ use Zend\Db\TableGateway\TableGateway;
 use Zend\Db\Sql\Select;
 use Zend\Db\ResultSet\ResultSet;
 use Zend\Db\Adapter\Adapter;
-
+use Exception;
 
 
 
@@ -37,9 +37,12 @@ class ObjectTable
         $statement = $dbAdapter->createStatement();
         $select->prepareStatement($dbAdapter, $statement);
         $driverResult = $statement->execute();
+        if(!$driverResult->count() > 0){
+            return false;
+        }
         $resultSet = new ResultSet();
         $resultSet->initialize($driverResult);
-        return $resultSet;
+        return $resultSet->toArray();
     }
 
     public function saveObject(Object $entity)
@@ -94,6 +97,10 @@ class ObjectTable
                 $insert->prepareStatement($dbAdapter, $statement);
                 $driverResult = $statement->execute();
                 $valueId = $driverResult->getGeneratedValue();
+            }
+
+            if(!$entityId){
+                return false;
             }
 
             $resultSet = new ResultSet();
@@ -204,7 +211,7 @@ class ObjectTable
 
             $resultSet = new ResultSet();
             $resultSet->initialize(array('id' => $entity->id));
-            return $resultSet;
+            return $resultSet->getDataSource();
         }
     }
 
@@ -284,7 +291,7 @@ class ObjectTable
 
         $resultSet = new ResultSet();
         $resultSet->initialize(array('affectedRows' => $affectedRows));
-        return $resultSet;
+        return $resultSet->getDataSource();
     }
 
     public function getObjectCollection($name)
@@ -326,9 +333,13 @@ class ObjectTable
             }
         }
 
+        if(!$newDataSource){
+            return array();
+        }
+
         $resultSet = new ResultSet();
         $resultSet->initialize($newDataSource);
-        return $resultSet;
+        return $resultSet->toArray();
     }
 
     public function getObject($id)
@@ -373,7 +384,9 @@ class ObjectTable
                 } 
             }
         }
-
+        if (!$newDataSource) {
+            return false;
+        }
         $resultSet = new ResultSet();
         $resultSet->initialize($newDataSource);
         return $resultSet;

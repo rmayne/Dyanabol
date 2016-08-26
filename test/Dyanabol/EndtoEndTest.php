@@ -6,7 +6,7 @@ use GuzzleHttp;
 class DyanabolZFTest extends \PHPUnit_Framework_TestCase
 {
     protected $client;
-    protected $base_uri = 'http://testarea.localhost/github/rm-zend-rest/public/';
+    protected $base_uri = 'http://dyanabol.localhost';
     protected $username = 'superbasic';
     protected $password = 'thisIsth364';
 
@@ -54,7 +54,7 @@ class DyanabolZFTest extends \PHPUnit_Framework_TestCase
             'auth' => array($this->username, $this->password)
         ));
         // test return code
-        $this->assertEquals(200, $response->getStatusCode(), 'Failed to create object 1');
+        $this->assertEquals(201, $response->getStatusCode(), 'Failed to create object 1');
         $this->assertObjectHasAttribute('id', json_decode($response->getBody()), 'Failed to return created id for object 1');
         // get created object id
         $data['id'] = json_decode($response->getBody())->id;
@@ -65,7 +65,7 @@ class DyanabolZFTest extends \PHPUnit_Framework_TestCase
             'auth' => array($this->username, $this->password)
         ));
         // test return code
-        $this->assertEquals(200, $response->getStatusCode(), 'Failed to create object 2');
+        $this->assertEquals(201, $response->getStatusCode(), 'Failed to create object 2');
         $this->assertObjectHasAttribute('id', json_decode($response->getBody()), 'Failed to return created id for object 1');
         // get created object id
         $data2['id'] = json_decode($response->getBody())->id;
@@ -76,7 +76,7 @@ class DyanabolZFTest extends \PHPUnit_Framework_TestCase
             'auth' => array($this->username, $this->password)
         ));
         // test return code
-        $this->assertEquals(200, $response->getStatusCode(), 'Failed to create object 3');
+        $this->assertEquals(201, $response->getStatusCode(), 'Failed to create object 3');
         $this->assertObjectHasAttribute('id', json_decode($response->getBody()), 'Failed to return created id for object 1');
         // get created object id
         $data3['id'] = json_decode($response->getBody())->id;
@@ -242,26 +242,26 @@ class DyanabolZFTest extends \PHPUnit_Framework_TestCase
             'auth' => array($this->username, $this->password)
         ));
         // test reponse code
-        $this->assertEquals(200, $response->getStatusCode(), 'delete entity failed');
+        $this->assertEquals(204, $response->getStatusCode(), 'delete entity failed');
 
         // object 2
         $response = $this->client->request('DELETE', $data2['object_class'] . '/' . $data2['id'], array(
             'auth' => array($this->username, $this->password)
         ));
         // test reponse code
-        $this->assertEquals(200, $response->getStatusCode(), 'delete entity failed');
+        $this->assertEquals(204, $response->getStatusCode(), 'delete entity failed');
 
         // object 3
         $response = $this->client->request('DELETE', $data3['object_class'] . '/' . $data3['id'], array(
             'auth' => array($this->username, $this->password)
         ));
         // test reponse code
-        $this->assertEquals(200, $response->getStatusCode(), 'delete entity failed');        
+        $this->assertEquals(204, $response->getStatusCode(), 'delete entity failed');        
     }
 
     /**
     * @depends testCreateObject
-    * @expectedException GuzzleHttp\Exception\ServerException
+    * @expectedException GuzzleHttp\Exception\ClientException
     */
     public function testReadDeletedObject($testDataArray){
         //verify that the object is longer available
@@ -274,21 +274,21 @@ class DyanabolZFTest extends \PHPUnit_Framework_TestCase
             'auth' => array($this->username, $this->password)
         ));
         // test status code
-        $this->assertEquals(500, $response->getStatusCode(), 'entity still present after delete');
+        $this->assertEquals(404, $response->getStatusCode(), 'entity still present after delete');
         
         // attempt to read deleted resource
         $response = $this->client->request('GET', $data2['object_class'] . '/' . $data2['id'], array(
             'auth' => array($this->username, $this->password)
         ));
         // test status code
-        $this->assertEquals(500, $response->getStatusCode(), 'entity still present after delete');
+        $this->assertEquals(404, $response->getStatusCode(), 'entity still present after delete');
 
         // attempt to read deleted resource
         $response = $this->client->request('GET', $data3['object_class'] . '/' . $data3['id'], array(
             'auth' => array($this->username, $this->password)
         ));
         // test status code
-        $this->assertEquals(500, $response->getStatusCode(), 'entity still present after delete');
+        $this->assertEquals(404, $response->getStatusCode(), 'entity still present after delete');
     }
 
     /**
