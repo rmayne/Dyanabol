@@ -41,6 +41,10 @@ Dyanabol is a RESTful JSON object storage API for rapid prototyping
 superbasic:thisIsth364
 
 ## version history
+* v0.8.2
+  * Object table class improved
+    * true update functionality added
+    
 * v0.8.1
   * correct reponse codes
   * more verbose error messages
