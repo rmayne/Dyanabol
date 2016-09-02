@@ -118,7 +118,7 @@ class ObjectController extends AbstractRestfulController
 		    $person = new Object();
 			$person->exchangeArray($data);
 			$people = $this->getObjectTable()->saveObject($person);
-			if(!people){
+			if(!$people){
 				$this->response->setStatusCode(304);
 			    throw new Exception('Could not update');
 			}
